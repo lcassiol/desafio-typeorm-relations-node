@@ -51,6 +51,8 @@ class CreateOrderService {
       throw new AppError('Invalid product Id');
     }
 
+    const updatedProductAndQuantity: IProduct[] = [];
+
     const updatedProducts = storeProducts.map(product => {
       const findProductAndQuantity = products.find(
         item => item.id === product.id,
@@ -63,10 +65,15 @@ class CreateOrderService {
         throw new AppError('Insuficient product quantity');
       }
 
+      updatedProductAndQuantity.push({
+        id: product.id,
+        quantity: newQuantity,
+      });
+
       return {
         product_id: product.id,
         price: product.price,
-        quantity: product.quantity - Number(findProductAndQuantity?.quantity),
+        quantity: Number(findProductAndQuantity?.quantity),
       };
     });
 
@@ -75,7 +82,10 @@ class CreateOrderService {
       products: updatedProducts,
     });
 
-    await this.productsRepository.updateQuantity(products);
+    console.log(updatedProducts);
+    console.log(updatedProductAndQuantity);
+
+    await this.productsRepository.updateQuantity(updatedProductAndQuantity);
 
     return order;
   }
