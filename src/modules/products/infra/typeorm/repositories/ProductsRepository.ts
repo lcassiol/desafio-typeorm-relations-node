@@ -22,7 +22,6 @@ class ProductsRepository implements IProductsRepository {
     price,
     quantity,
   }: ICreateProductDTO): Promise<Product> {
-    // TODO
     if (quantity < 0) {
       throw new AppError('Invalid quantity');
     }
@@ -47,7 +46,6 @@ class ProductsRepository implements IProductsRepository {
   }
 
   public async findByName(name: string): Promise<Product | undefined> {
-    // TODO
     const product = await this.ormRepository.findOne({
       name,
     });
@@ -70,7 +68,6 @@ class ProductsRepository implements IProductsRepository {
   public async updateQuantity(
     products: IUpdateProductsQuantityDTO[],
   ): Promise<Product[]> {
-    // TODO
     const productIds = products.map(product => product.id);
 
     const findProducts = await this.ormRepository.find({
