@@ -4,6 +4,7 @@ import AppError from '@shared/errors/AppError';
 
 import IProductsRepository from '@modules/products/repositories/IProductsRepository';
 import ICustomersRepository from '@modules/customers/repositories/ICustomersRepository';
+import { AdvancedConsoleLogger } from 'typeorm';
 import Order from '../infra/typeorm/entities/Order';
 import IOrdersRepository from '../repositories/IOrdersRepository';
 
@@ -30,6 +31,53 @@ class CreateOrderService {
 
   public async execute({ customer_id, products }: IRequest): Promise<Order> {
     // TODO
+    const customer = await this.customersRepository.findById(customer_id);
+
+    if (!customer) {
+      throw new AppError('Customer does not exists');
+    }
+
+    const productsIds = products.map(product => {
+      return {
+        id: product.id,
+      };
+    });
+
+    const storeProducts = await this.productsRepository.findAllById(
+      productsIds,
+    );
+
+    if (products.length > storeProducts.length) {
+      throw new AppError('Invalid product Id');
+    }
+
+    const updatedProducts = storeProducts.map(product => {
+      const findProductAndQuantity = products.find(
+        item => item.id === product.id,
+      );
+
+      const newQuantity =
+        product.quantity - Number(findProductAndQuantity?.quantity);
+
+      if (newQuantity < 0) {
+        throw new AppError('Insuficient product quantity');
+      }
+
+      return {
+        product_id: product.id,
+        price: product.price,
+        quantity: product.quantity - Number(findProductAndQuantity?.quantity),
+      };
+    });
+
+    const order = await this.ordersRepository.create({
+      customer,
+      products: updatedProducts,
+    });
+
+    await this.productsRepository.updateQuantity(products);
+
+    return order;
   }
 }
 

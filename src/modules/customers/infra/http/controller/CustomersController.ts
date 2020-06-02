@@ -12,6 +12,6 @@ export default class CustomersController {
 
     const customer = await createCustomer.execute({ email, name });
 
-    return response.json(customer);
+    return response.json(customer).send();
   }
 }

@@ -13,6 +13,6 @@ export default class ProductsController {
       price,
     });
 
-    return response.json(product);
+    return response.json(product).send();
   }
 }

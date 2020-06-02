@@ -17,10 +17,12 @@ class Order {
   id: string;
 
   @OneToOne(() => Customer)
-  @JoinColumn()
+  @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 
-  @OneToMany(() => OrdersProducts, ordersProduct => ordersProduct.id)
+  @OneToMany(() => OrdersProducts, ordersProduct => ordersProduct.order, {
+    cascade: ['insert'],
+  })
   order_products: OrdersProducts[];
 
   @CreateDateColumn()
